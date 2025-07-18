@@ -8,11 +8,47 @@ namespace Email
 {
     class Program
     {
-        const string SENDER_EMAIL = " "; //For this to work, you'll have to make your own email/password
-        const string SENDER_PASSWORD = " "; //this cannot be empty
-    
+        const string SENDER_EMAIL = ""; //For this to work, you'll have to make your own email/password
+        const string SENDER_PASSWORD = ""; //this cannot be empty
+        static bool errors = false;
         
         static void Main(string[] args)
+        {
+            int attempts = 0;
+            while (attempts < 10)
+            {
+                try
+                {
+                    Send2();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[{DateTime.Now}]: FATAL: Program crashed unexpectedly. Message: {ex.Message}");
+                    Thread.Sleep(1000);
+                    attempts++;
+                    bool errors = true;
+                }
+                
+            }
+            if (attempts >= 10)
+            {
+                Console.WriteLine($"[{DateTime.Now}]: FATAL: Program crashed after {attempts} attempts. Quitting...");
+                Environment.Exit(1);
+            }
+            else if (errors = true)
+            {
+                Console.WriteLine($"[{DateTime.Now}]: Program finished with errors");
+            }
+            else
+            {
+                Console.WriteLine($"[{DateTime.Now}]: Program finished successfully.");
+            }
+
+        }
+            
+
+        public static void Send2()
         {
             data data = new data();
             data.sender_email = SENDER_EMAIL;
@@ -22,8 +58,17 @@ namespace Email
             data.message = " "; //message goes here 
 
             Console.WriteLine("Starting");
-            
-            Send(data);
+
+            if (string.IsNullOrEmpty(SENDER_EMAIL) || string.IsNullOrEmpty(SENDER_PASSWORD))
+            {
+                Console.WriteLine($"[{DateTime.Now}]: FATAL: string SENDER_EMAIL and string SENDER_PASSWORD are null or empty.");
+                bool errors = true;
+            }
+            else
+            {
+                Console.WriteLine("Sending...");
+                Send(data);
+            }
         }
         public static char[] validC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.@_-".ToCharArray(); 
         public static bool isValid(string input) 
@@ -40,19 +85,20 @@ namespace Email
             string mail_inputed;
             while (true)
             {
-                Console.Write("receiver_email~>> ");
+                Console.Write($"[{DateTime.Now}]: receiver_email~>> ");
                 mail_inputed = Console.ReadLine();
-                if (isValid(mail_inputed)) //isValid doesn't exi
+                if (isValid(mail_inputed))
                 {
                     break;
                 }
                 else
                 { 
-                    Console.Write("FATAL: Invalid email address; string did not pass the first layer of inspection; try again \n");
+                    Console.Write($"[{DateTime.Now}]: FATAL: Invalid email address; string did not pass the first layer of inspection; try again \n");
+                    bool errors = true;
                 }
                 
             }
-            Console.WriteLine($"sending to: {mail_inputed}");
+            Console.WriteLine($"[{DateTime.Now}]: sending to: {mail_inputed}");
             return mail_inputed;
         }
         public static void Send(data d)
@@ -75,29 +121,33 @@ namespace Email
                 try
                 {
                     client.Send(mail);
-                    Console.WriteLine("Email sent");
+                    Console.WriteLine($"[{DateTime.Now}]: Email sent");
+                    bool errors = false;
                 }
                 
                 catch (FormatException)
                 {
-                    Console.WriteLine("FATAL: String did not pas the second layer of inspection; Program quit\n");
+                    Console.WriteLine($"[{DateTime.Now}]: FATAL: String did not pas the second layer of inspection; Program quit\n");
+                    bool errors = true;
                 }
                 catch (SmtpException smtpEx)
                 {
-                    Console.WriteLine("Working");
-                    Console.WriteLine("SMTP error: " + smtpEx.Message + ". Try checking your internet connection\n");
+                    Console.WriteLine($"[{DateTime.Now}]: Working");
+                    Console.WriteLine($"[{DateTime.Now}]: SMTP error: " + smtpEx.Message + ". Try checking your internet connection\n");
+                    bool errors = true;
                 }
                 
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error: " + ex.Message);
-                    Console.WriteLine("FATAL: Program quit: Unexpected error");
-                    
+                    Console.WriteLine($"[{DateTime.Now}]: Error: " + ex.Message);
+                    Console.WriteLine($"[{DateTime.Now}]: FATAL: Program quit: Unexpected error");
+                    bool errors = true;
                 }
 
-                //some ass error handling, might fix that later
+                //some ass error handling. might fix that later
                 
             }
         }
     }
 }
+
