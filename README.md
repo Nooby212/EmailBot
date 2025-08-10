@@ -16,3 +16,5 @@ This program is not ready to go out of the box, you still need to add
 all your personal info, as well as your SMTP server.
 
 If you use Gmail, an app password is required. 
+
+this software is delivered as-is, I do not claim any responsability if your shit breaks
